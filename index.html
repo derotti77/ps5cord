@@ -1,105 +1,57 @@
 <!DOCTYPE html>
 <html lang="de">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>PS5Cord</title>
-    <link rel="stylesheet" href="css/app.css?v=1791869624">
-  </head>
-  <body>
-    <div id="root">
-    <!-- Verbindung zum Hintergrund-Dienst / Laden -->
-    <div id="splash" class="screen">
-      <div class="splash-logo"></div>
-      <div id="splash-text">Verbinde mit PS5Cord …</div>
-    </div>
-
-    <!-- Login -->
-    <div id="login" class="screen" hidden>
-      <div class="login-card">
-        <div class="login-left">
-          <h1>Willkommen bei PS5Cord</h1>
-          <p class="sub">Inoffizieller Discord-Client für die PS5</p>
-          <ol class="steps">
-            <li>Öffne Discord auf deinem Handy</li>
-            <li>Tippe unten rechts auf dein <b>Profilbild</b>, dann oben rechts auf das
-              <b>Zahnrad</b> und auf <b>„QR-Code scannen“</b></li>
-            <li>Scanne den Code <b>mit der Discord-App</b> (nicht mit der normalen Kamera!)
-              und bestätige den Login</li>
-          </ol>
-          <div class="login-actions">
-            <button type="button" id="btn-qr-retry" class="btn focusable">QR-Code neu laden</button>
-            <button type="button" id="btn-token" class="btn btn-ghost focusable">Mit Token anmelden</button>
-          </div>
-          <form id="token-form" hidden>
-            <input id="token-input" type="password" autocomplete="off"
-                   placeholder="Discord-Token einfügen" class="focusable">
-            <button type="submit" class="btn focusable">Anmelden</button>
-          </form>
-          <div id="login-error" class="error" hidden></div>
-          <p class="warning">⚠ Inoffizielle Clients verstoßen gegen Discords
-            Nutzungsbedingungen. Dein Account kann gesperrt werden.
-            Nutzung auf eigenes Risiko.</p>
-        </div>
-        <div class="login-right">
-          <div id="qr-box"><div id="qr"></div></div>
-          <div id="qr-status">QR-Code wird geladen …</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Hauptansicht -->
-    <div id="app" class="screen" hidden>
-      <nav id="guilds" class="zone" data-zone="guilds"></nav>
-      <aside id="sidebar">
-        <header id="sidebar-head"></header>
-        <div id="channels" class="zone" data-zone="channels"></div>
-        <footer id="me"></footer>
-      </aside>
-      <main id="chat">
-        <header id="chat-head">
-          <span id="chat-title"></span>
-          <span id="chat-topic"></span>
-          <span id="conn-state"></span>
-          <button type="button" id="btn-menu" class="btn btn-ghost focusable" data-action="menu">☰ Menü</button>
-        </header>
-        <div id="messages" class="zone" data-zone="messages">
-          <div id="messages-inner"></div>
-        </div>
-        <div id="typing"></div>
-        <form id="composer">
-          <div id="reply-bar" hidden>
-            <span id="reply-text"></span>
-            <span class="reply-cancel" data-action="cancel-reply">✕ Abbrechen</span>
-          </div>
-          <div class="composer-row">
-            <input id="composer-input" type="text" autocomplete="off" maxlength="2000"
-                   placeholder="Nachricht schreiben">
-            <button type="submit" id="btn-send" class="btn">Senden</button>
-          </div>
-        </form>
-      </main>
-    </div>
-
-    <!-- Hinweisleiste mit Controller-Belegung -->
-    <div id="hints" hidden></div>
-
-    <!-- Menues / Overlays -->
-    <div id="menu" class="overlay" hidden>
-      <div class="menu-box">
-        <div id="menu-title"></div>
-        <div id="menu-items"></div>
-      </div>
-    </div>
-    <div id="viewer" class="overlay" data-action="close-viewer" hidden><img id="viewer-img" alt=""></div>
-    <div id="toast" hidden></div>
-    </div>
-
-    <script src="js/debug.js?v=1791869624"></script>
-    <script src="js/qrcode.min.js?v=1791869624"></script>
-    <script src="js/input.js?v=1791869624"></script>
-    <script src="js/api.js?v=1791869624"></script>
-    <script src="js/markdown.js?v=1791869624"></script>
-    <script src="js/app.js?v=1791869624"></script>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PS5Cord</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #1e1f22; color: #b5bac1;
+    font-family: "SST", "Helvetica Neue", Arial, sans-serif; }
+  body { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px; }
+  .logo { width: 140px; height: 140px; border-radius: 36px; background: #5865f2; display: flex;
+    align-items: center; justify-content: center; font-size: 72px; animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: scale(0.92); opacity: 0.8; } }
+  #msg { font-size: 30px; text-align: center; max-width: 1200px; line-height: 1.4; }
+  .dim { font-size: 22px; color: #80848e; }
+</style>
+</head>
+<body>
+  <div class="logo">💬</div>
+  <div id="msg">Starte PS5Cord …</div>
+<script>
+/* Starter fuer die PS5Cord-Vollbild-App.
+ * PS5-Web-Apps duerfen nur HTTPS-Seiten laden, aber zu einer lokalen Adresse
+ * navigieren. Diese Seite prueft per Bild, ob der PS5Cord-Dienst auf der
+ * Konsole laeuft, und leitet dann zur eigentlichen Oberflaeche weiter. */
+(function () {
+  var LOCAL = "http://127.0.0.1:8645";
+  var tries = 0;
+  function check() {
+    var img = new Image();
+    var done = false;
+    var timer = setTimeout(function () { fail(); }, 4000);
+    function fail() {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      tries++;
+      document.getElementById("msg").innerHTML =
+        "PS5Cord-Dienst nicht erreichbar.<br>" +
+        '<span class="dim">Sende den PS5Cord-Payload (ps5cord.elf) an die Konsole. ' +
+        "Neuer Versuch läuft automatisch … (" + tries + ")</span>";
+      setTimeout(check, 2500);
+    }
+    img.onload = function () {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      location.replace(LOCAL + "/?app=1");
+    };
+    img.onerror = fail;
+    img.src = LOCAL + "/api/probe?m=launcher&t=" + Date.now();
+  }
+  check();
+})();
+</script>
+</body>
 </html>
