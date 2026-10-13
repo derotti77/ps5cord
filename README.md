@@ -1,12 +1,13 @@
-# PS5Cord – Oberfläche
+# PS5Cord – Starter
 
-Dies ist nur die Oberfläche (HTML/CSS/JS) von PS5Cord, einem **inoffiziellen**
-Discord-Client für jailbroken PS5-Konsolen. Sie wird als Vollbild-App auf der
-PS5 geladen und spricht ausschließlich mit dem PS5Cord-Dienst, der lokal auf
-der Konsole läuft (`http://127.0.0.1:8645`). Hier liegen keine Tokens oder
-Account-Daten.
+Diese Seite ist nur der **Starter** für die PS5Cord-Vollbild-App auf jailbroken
+PS5-Konsolen. PS5-Web-Apps dürfen nur HTTPS-Seiten laden; der Starter prüft,
+ob der PS5Cord-Dienst lokal auf der Konsole läuft, und leitet dann zu dessen
+Oberfläche unter `http://127.0.0.1:8645/` weiter. Hier liegen keine Tokens,
+Nachrichten oder sonstigen Account-Daten.
 
-> ⚠️ Inoffizielle Clients verstoßen gegen die Nutzungsbedingungen von Discord.
-> Dein Account kann gesperrt werden. Nutzung auf eigenes Risiko.
+> ⚠️ PS5Cord ist ein **inoffizieller** Discord-Client. Inoffizielle Clients
+> verstoßen gegen die Nutzungsbedingungen von Discord – dein Account kann
+> gesperrt werden. Nutzung auf eigenes Risiko.
 
 PS5Cord steht in keiner Verbindung zu Discord Inc. oder Sony Interactive Entertainment.
