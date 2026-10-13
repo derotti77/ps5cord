@@ -1,12 +1,15 @@
 /* Diagnose: meldet Eingaben, Fehler und Browser-Infos an den Dienst-Log. */
 (function () {
   "use strict";
+  var bases = location.protocol === "https:" ? ["http://127.0.0.1:8645", "http://localhost:8645"] : [""];
   function send(msg) {
-    try {
-      var x = new XMLHttpRequest();
-      x.open("POST", (location.protocol === "https:" ? "http://127.0.0.1:8645" : "") + "/api/debug", true);
-      x.send(String(msg));
-    } catch (e) {}
+    bases.forEach(function (b) {
+      try {
+        var x = new XMLHttpRequest();
+        x.open("POST", b + "/api/debug", true);
+        x.send("[" + (b || "rel") + "] " + String(msg));
+      } catch (e) {}
+    });
   }
   window.dbg = send;
   window.onerror = function (msg, src, line, col) {

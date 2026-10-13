@@ -1103,12 +1103,13 @@
   }
 
   function loadState() {
-    return Api.state().then(function (st) {
+    return Api.probe().then(function () { return Api.state(); }).then(function (st) {
       applyState(st);
       startPolling();
-    }).catch(function () {
+    }).catch(function (e) {
       show("splash");
-      $("splash-text").textContent = "PS5Cord-Dienst nicht erreichbar. Läuft der Payload?";
+      $("splash-text").innerHTML = "PS5Cord-Dienst nicht erreichbar. Läuft der Payload?" +
+        '<div class="dim" style="margin-top:24px;max-width:1400px">' + esc(Api.lastError() || e.message) + "</div>";
       setTimeout(loadState, 3000);
     });
   }

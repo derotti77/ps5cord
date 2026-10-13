@@ -4,7 +4,31 @@ var Api = (function () {
 
   // Von HTTPS geladen (Vollbild-App ueber GitHub Pages): den Dienst auf der
   // Konsole direkt ansprechen. Lokal geladen: relative URLs.
-  var BASE = location.protocol === "https:" ? "http://127.0.0.1:8645" : "";
+  var CANDIDATES = location.protocol === "https:"
+    ? ["http://127.0.0.1:8645", "http://localhost:8645"] : [""];
+  var BASE = CANDIDATES[0];
+  var lastError = "";
+
+  // Findet heraus, unter welcher Adresse der Dienst erreichbar ist.
+  function probe() {
+    var i = 0;
+    var errors = [];
+    function next() {
+      if (i >= CANDIDATES.length) {
+        lastError = errors.join(" | ");
+        return Promise.reject(new Error(lastError));
+      }
+      var base = CANDIDATES[i++];
+      return fetch(base + "/api/state").then(function (r) {
+        BASE = base;
+        return r;
+      }).catch(function (e) {
+        errors.push((base || "relativ") + ": " + e);
+        return next();
+      });
+    }
+    return next();
+  }
 
   function request(method, url, body) {
     var opts = { method: method, headers: {} };
@@ -39,6 +63,8 @@ var Api = (function () {
   }
 
   return {
+    probe: probe,
+    lastError: function () { return lastError; },
     state: function () { return request("GET", "/api/state"); },
     events: function (since) { return request("GET", "/api/events?since=" + since); },
     loginToken: function (token) { return request("POST", "/api/login/token", { token: token }); },
