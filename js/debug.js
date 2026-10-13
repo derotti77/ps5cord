@@ -80,6 +80,11 @@
     document.body.appendChild(fr);
   });
   fetch("https://127.0.0.1:8645/api/probe?m=https").catch(function (e) { note("https 127 FAIL " + e); });
+  // Entwickler-Mac im LAN (nur waehrend der Fehlersuche)
+  ["http://192.168.2.1:9080", "https://192.168.2.1:9443"].forEach(function (b) {
+    fetch(b + "/?m=fetch").then(function () { note(b + " fetch OK"); }).catch(function (e) { note(b + " fetch FAIL " + e); });
+    var im = new Image(); im.src = b + "/?m=img";
+  });
   note("UA " + navigator.userAgent + " " + innerWidth + "x" + innerHeight);
   setTimeout(function () {
     note("navigating...");
